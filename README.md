@@ -13,7 +13,7 @@ E todos os dados são transmitidos e recebidos como JSON, onde todos os campos v
 
 ## Autenticação
 Com excessão da rota usada para realizar o login (No momento é possivel recuperar um token de acesso acessando a rota `http://servidor:3000/getRandomToken`), todas as rotas precisam incluir no cabeçalho da requisição um token de autenticação gerado através do JsonWebToken,
-`curl -H "Authorizatoin: Bearer `_`JsonWebToken`_`" http://servidor:3000/`
+`curl -H "Authorization: Bearer `_`JsonWebToken`_`" http://servidor:3000/`
  Caso contrário a requisição retornara o erro `401 Unauthorized` indicando acesso indevido à api.<break>
  
 ## Erros no cliente.
