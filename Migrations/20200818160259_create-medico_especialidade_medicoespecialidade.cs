@@ -49,6 +49,9 @@ namespace DesafioBackend.Migrations
                         column: x => x.especialidadeid,
                         principalTable: "Especialidade",
                         principalColumn: "id",
+                        /* Cascade porque se removermos ou alterarmos (seu id) uma especialidade,
+                         * removeremos ou atualizaremos seu relacionamento com o médico que a tiver.
+                        */
                         onUpdate: ReferentialAction.Cascade,
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -56,6 +59,9 @@ namespace DesafioBackend.Migrations
                         column: x => x.medicoid,
                         principalTable: "Medicos",
                         principalColumn: "id",
+                        /* Cascade porque se removermos ou alterarmos um médico (seu id),
+                         * seu relacionamento deverá ser removido ou atualizado.
+                         */
                         onUpdate: ReferentialAction.Cascade,
                         onDelete: ReferentialAction.Cascade);
                 });

@@ -23,6 +23,8 @@ namespace DesafioBackend.Controllers
         }
 
         // GET: /Medicos
+        /* Buscar e retornar lista com todos os médicos cadastrados no banco de dados com suas especialidades.
+         */
         [HttpGet]
         public async Task<IEnumerable<MedicoDTO>> GetMedicos()
         {
@@ -50,30 +52,40 @@ namespace DesafioBackend.Controllers
             return responseMedicos;
         }
 
+        /* Buscar todas as especialidades encontradas na busca de palavra chave e retornar todos os médicos que a possuem.
+         * TODO this can be improved by using a singles query with less foreach blocks.
+         */
         // GET: /Medico/Especialidade
         [HttpGet("{query}")]
         public async Task<IEnumerable<MedicoDTO>> GetMedico(String query)
         {
+            // Busca das especialidades onde conter a query.
             var targetEspecialidade = await _context.Especialidade
                 .Where(especialidade => especialidade.nome.Contains(query))
                 .Include("medicoespecialidade")
                 .ToListAsync();
 
+            // Busca todos os médicos.
             var medicos = await _context.Medicos
                 .Include("especialidades.especialidade")
                 .ToListAsync();
 
             List<MedicoDTO> responseMedicos = new List<MedicoDTO>();
 
+            // Iterar entre as especialidades encontradas na seleção.
             foreach (Especialidade especialidade in targetEspecialidade)
             {
+                // Iterar entre os relacionamentos das especialidades encontradas
                 foreach (MedicoEspecialidade medicoEspecialidade in especialidade.medicoespecialidade)
                 {
                     List<String> especialidades = new List<String>();
+
+                    //Iterar entre as especialidades para adcionar ao objeto de resposta MedicoDTO.
                     foreach (MedicoEspecialidade item in medicoEspecialidade.medico.especialidades)
                     {
                         especialidades.Add(item.especialidade.nome);
                     }
+
                     responseMedicos.Add(new MedicoDTO()
                     {
                         id = medicoEspecialidade.medico.id,
@@ -89,6 +101,10 @@ namespace DesafioBackend.Controllers
             return responseMedicos;
         }
 
+        /* Cadastrar um novo médico no banco de dados, com suas especialidades.
+         * Retornar erro ao enviar campos inválidos.
+         * Validação através do método checkfields() : List<error>
+         */
         // POST: /Medicos
         [HttpPost]
         public async Task<ObjectResult> PostMedico(MedicoDTO medico)
@@ -97,6 +113,7 @@ namespace DesafioBackend.Controllers
 
             List<error> ModelErrors = checkfields(medico);
 
+            //Se não encontrar nenhum erro proseguir com o cadastro.
             if (ModelErrors.Count() == 0)
             {
                 Medico newMedico = new Medico()
@@ -106,17 +123,19 @@ namespace DesafioBackend.Controllers
                     crm = medico.crm
                 };
 
+                //Adcionar as especialidades ao objeto Medico.
                 foreach (string especialidade in medico.especialidades)
                 {
                     Especialidade newEspecialidade = new Especialidade();
-                    //A especialidade já existe, basta criar o relacionamento com o médico.
+
+                    //Se a especialidade já existir, basta criar a especialidade.
                     if (EspecialidadeExists(especialidade))
                     {
                         var response = _context.Especialidade.Where(item => item.nome == especialidade);
 
                         newEspecialidade = response.FirstOrDefault();
                     }
-                    //A especialidade não existe, basta criar a especialidade e seu relacionamento
+                    //Se a especialidade não existir, basta criar a especialidade.
                     else
                     {
                         newEspecialidade = new Especialidade()
@@ -125,7 +144,7 @@ namespace DesafioBackend.Controllers
                         };
                     }
 
-                    //_context.Especialidade.Add(newEspecialidade);
+                    // Adcionar a especialidade ao médico.
                     MedicoEspecialidade newMedicoEspecialidade = new MedicoEspecialidade()
                     {
                         medico = newMedico,
@@ -133,14 +152,19 @@ namespace DesafioBackend.Controllers
                     };
 
                     _context.MedicosEspecialidades.Add(newMedicoEspecialidade);
+
                     newMedico.especialidades.Add(newMedicoEspecialidade);
                 }
 
+                //Salvar o médico no banco de dados.
                 _context.Medicos.Add(newMedico);
                 await _context.SaveChangesAsync();
 
+                // Acrescentar seu id para retornar o objeto MedicoDTO.
                 medico.id = newMedico.id;
             }
+
+            //Se encontrar erros retornar os erros encontrados com o status 400
             else
             {
                 return BadRequest(JsonConvert.SerializeObject(new
@@ -152,8 +176,9 @@ namespace DesafioBackend.Controllers
             return Ok(medico);
         }
 
-
-        // DELETE: /Medicos/5
+        /* Remover um registro do banco de dados através do seu id.
+         */
+        // DELETE: /Medicos/{Guid}
         [HttpDelete("{id}")]
         public async Task<ActionResult<Medico>> DeleteMedico(Guid id)
         {
@@ -169,10 +194,16 @@ namespace DesafioBackend.Controllers
             return medico;
         }
 
+        /* Verificar se a especialidade já existe.
+         * Usada na criação de novos médicos, para poder reutilizar se já tiver uma especialidade com o mesmo nome.
+         */
         private bool EspecialidadeExists(String nome)
         {
             return _context.Especialidade.Any(e => e.nome == nome);
         }
+
+        /* Verificar se todos os campos são válidos e retornar uma lista com os erros encontrados.
+         */
         private List<error> checkfields(MedicoDTO medico)
         {
             List<error> formErrors = new List<error>();
@@ -211,6 +242,9 @@ namespace DesafioBackend.Controllers
             return formErrors;
         }
     }
+
+    /* Classe para padronizar os erros.
+     */
     public class error
     {
         public string campo;

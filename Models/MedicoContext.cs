@@ -13,6 +13,9 @@ namespace DesafioBackend.Models
         public DbSet<MedicoEspecialidade> MedicosEspecialidades { get; set; }
         public DbSet<Especialidade> Especialidade { get; set; }
 
+        /* Conexão com o banco de dados PostgreSQL
+         * A ser usado váriaveis de ambiente para guardar essa informação.
+         */
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseNpgsql("Host=salt.db.elephantsql.com ;" +
                 "Database=mzbjfanh;" +

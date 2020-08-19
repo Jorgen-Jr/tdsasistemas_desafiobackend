@@ -16,6 +16,8 @@ namespace DesafioBackend.Middlewares
             var secret = config.GetSection("JwtConfig").GetSection("secret").Value;
 
             var key = Encoding.ASCII.GetBytes(secret);
+
+            // Configuração do JWT
             services.AddAuthentication(token =>
             {
                 token.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

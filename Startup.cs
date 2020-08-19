@@ -21,12 +21,14 @@ namespace DesafioBackend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //Adcionando o contexto do banco de dados às services,
             services.AddDbContext<MedicoContext>(opt =>
                 opt.UseNpgsql("Medicos"));
             services.AddDbContext<MedicoContext>(opt =>
                 opt.UseNpgsql("Especialidades"));
 
             services.AddControllers();
+            //Adcionando o service de autenticação do token jwt.
             services.AddTokenAuthentication(Configuration);
         }
 
@@ -43,6 +45,7 @@ namespace DesafioBackend
 
             app.UseRouting();
 
+            // Fazer o uso de autenticação para acessar as rotas com [Authorize]
             app.UseAuthentication();
 
             app.UseAuthorization();

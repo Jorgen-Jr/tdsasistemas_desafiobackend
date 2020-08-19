@@ -18,6 +18,8 @@ namespace DesafioBackend.Services
             _expDate = config.GetSection("JwtConfig").GetSection("expirationInMinutes").Value;
         }
 
+        /* Gerar um token válido e retorna-lo, por hora usando as configurações em appsettings.json
+         */
         public string GenerateSecurityToken(string email)
         {
             var tokenHandler = new JwtSecurityTokenHandler();

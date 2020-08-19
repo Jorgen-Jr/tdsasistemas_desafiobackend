@@ -15,11 +15,14 @@ namespace DesafioBackend.Controllers
             _config = config;
         }
 
+        /*  Gerar e retornar uma string com o token de acesso.
+         *  Seria o resultado da rota de login.
+         */
         [HttpGet]
         public string GetRandomToken()
         {
             var jwt = new JwtService(_config);
-            var token = jwt.GenerateSecurityToken("fakeUser@aspdok.com");
+            var token = jwt.GenerateSecurityToken("someUser@aspdok.com");
             return token;
         }
     }
