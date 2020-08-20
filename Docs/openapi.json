@@ -18,52 +18,50 @@
           "200": {
             "description": "200 response",
             "content": {
-              "text/plain; charset=utf-8": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZha2VVc2VyQGFzcGRvay5jb20iLCJuYmYiOjE1OTc3NjMzOTksImV4cCI6MTU5Nzg0OTc5OSwiaWF0IjoxNTk3NzYzMzk5fQ.ntYcuZp8n8TH0a4giC7jhny6ITEQ21_s6v3Le4XdovY"
+              "text/plain; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthToken"
+                }
+              }
             }
-          }
-        }
-      }
-    }
-  },
-  "/medico": {
-    "get": {
-      "operationId": "listMedicos",
-      "summary": "Listar todos os médicos.",
-      "responses": {
-        "200": {
-          "description": "200 response",
-          "content": {
-            "application/json": null,
-            "schema": {
-              "$ref": "#/components/schemas/Medicos"
-            }
-          }
-        },
-        "401": {
-          "description": "Se não houver token de autenticação, retornará 401 - Unnauthorized, sem corpo em sua resposta.",
-          "content": {
-            "WWW-Authenticate": "Bearer"
           }
         }
       }
     },
-    "post": {
-      "operationId": "createMedico",
-      "description": "Cria um novo médico.",
-      "requestBody": {
-        "description": "Medico a ser adcionado com suas especialidades",
-        "required": true,
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/Medico"
+    "/medico": {
+      "get": {
+        "operationId": "listMedicos",
+        "summary": "Listar todos os médicos.",
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Medicos"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Se não houver token de autenticação, retornará 401 - Unnauthorized, sem corpo em sua resposta.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Erro de autenticação",
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorizationError"
+                }
+              }
             }
           }
         }
       },
-      "responses": {
-        "200": {
-          "description": "Resposta da criação",
+      "post": {
+        "operationId": "createMedico",
+        "description": "Cria um novo médico.",
+        "requestBody": {
+          "description": "Medico a ser adcionado com suas especialidades",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -72,104 +70,93 @@
             }
           }
         },
-        "400": {
-          "description": "Resposta ao encontrar erros na request",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Erros"
+        "responses": {
+          "200": {
+            "description": "Resposta da criação",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Medico"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Se não houver token de autenticação, retornará 401 - Unnauthorized, sem corpo em sua resposta.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Erro de autenticação",
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorizationError"
+                }
               }
             }
           }
-        },
-
-        "default": {
-          "description": "unexpected error",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Erros"
+        }
+      }
+    },
+    "/medico/{query}": {
+      "get": {
+        "operationId": "queryMedico",
+        "summary": "Listar todos os médicos que contenham a especialidade passada como parâmetro.",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "path",
+            "required": true,
+            "description": "Nome da especialidade a buscar.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Medicos"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Se não houver token de autenticação, retornará 401 - Unnauthorized, sem corpo em sua resposta.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Erro de autenticação",
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorizationError"
+                }
               }
             }
           }
         }
       }
     }
+
   },
-  "/medico/{query}": {
-    "get": {
-      "operationId": "queryMedico",
-      "summary": "Listar todos os médicos que contenham a especialidade passada como parâmetro.",
-      "parameters": [
-        {
-          "query": "query",
-          "description": "Especialidade a filtrar",
-          "required": false,
-          "style": "form",
-          "schema": {
+  "components": {
+    "schemas": {
+      "AuthToken": {
+        "type": "string",
+        "required": [ "token" ],
+        "properties": {
+          "token": {
             "type": "string"
           }
         }
-      ],
-      "responses": {
-        "200": {
-          "description": "200 response",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Medico"
-              }
-            }
-          }
-        },
-        "401": {
-          "description": "Se não houver token de autenticação ou token invalido, retornará 401 - Unnauthorized, sem corpo em sua resposta.",
-          "content": {
-            "WWW-Authenticate": "Bearer || Token Invalid"
+      },
+      "AuthorizationError": {
+        "type": "string",
+        "required": [ "error" ],
+        "properties": {
+          "error": {
+            "type": "string"
           }
         }
-      }
-    }
-  },
-
-  "/medico/{id}": {
-    "delete": {
-      "operationId": "deleteMedico",
-      "summary": "Deletar o médico no id passado por parametro..",
-      "parameters": [
-        {
-          "id": "id",
-          "description": "Id do médico a ser removido",
-          "required": false,
-          "style": "form",
-          "schema": {
-            "type": "Guid"
-          }
-        }
-      ],
-      "responses": {
-        "200": {
-          "description": "200 response",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Medico"
-              }
-            }
-          }
-        },
-        "401": {
-          "description": "Se não houver token de autenticação ou token invalido, retornará 401 - Unnauthorized, sem corpo em sua resposta.",
-          "content": {
-            "WWW-Authenticate": "Bearer || Token Invalid"
-          }
-        }
-      }
-    }
-  },
-
-  "components": {
-    "schemas": {
+      },
       "Especialidade": {
         "type": "object",
         "required": [ "name" ],
