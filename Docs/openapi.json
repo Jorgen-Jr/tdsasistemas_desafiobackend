@@ -13,7 +13,8 @@
     "/getRandomToken": {
       "get": {
         "operationId": "getRandomToken",
-        "summary": "Deve retornar um token de autenticação jwt em formato de texto, que deve ser usado para autenticar as outras rotas através do cabeçalho..",
+        "description": "Deve retornar um token de autenticação jwt em formato de texto, que deve ser usado para autenticar as outras rotas através do cabeçalho.",
+        "summary": "Deve retornar um token de autenticação jwt em formato de texto, que deve ser usado para autenticar as outras rotas através do cabeçalho.",
         "responses": {
           "200": {
             "description": "200 response",
@@ -31,7 +32,18 @@
     "/medico": {
       "get": {
         "operationId": "listMedicos",
+        "description": "Retorna uma lista simplificada com todos os registros dos medicos cadastrados e suas especialidades.",
         "summary": "Listar todos os médicos.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "description": "Token de autenticação necessário para executar esta rota.",
+            "in": "header",
+            "schema": {
+              "$ref": "#/components/schemas/AuthToken"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "200 response",
@@ -58,7 +70,18 @@
       },
       "post": {
         "operationId": "createMedico",
-        "description": "Cria um novo médico.",
+        "description": "Recebe no corpo da requisição os dados do medicos que se deseja criar o registro.",
+        "summary": "Criar um novo médico",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "description": "Token de autenticação necessário para executar esta rota.",
+            "in": "header",
+            "schema": {
+              "$ref": "#/components/schemas/AuthToken"
+            }
+          }
+        ],
         "requestBody": {
           "description": "Medico a ser adcionado com suas especialidades",
           "required": true,
@@ -97,7 +120,8 @@
     },
     "/medico/{query}": {
       "get": {
-        "operationId": "queryMedico",
+        "operationId": "medicoByEspecialidade",
+        "description": "Recebe o nome da especialidade e retorna todos os médicos que a possuirem.",
         "summary": "Listar todos os médicos que contenham a especialidade passada como parâmetro.",
         "parameters": [
           {
@@ -107,6 +131,61 @@
             "description": "Nome da especialidade a buscar.",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "description": "Token de autenticação necessário para executar esta rota.",
+            "in": "header",
+            "schema": {
+              "$ref": "#/components/schemas/AuthToken"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Medicos"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Se não houver token de autenticação, retornará 401 - Unnauthorized, sem corpo em sua resposta.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Erro de autenticação",
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorizationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteMedico",
+        "description": "Recebe como parametro o id do registro que se deseja remover, e o remove.",
+        "summary": "Remove um medico.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Id do médico que deseja deletar em formato Guid.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "description": "Token de autenticação necessário para executar esta rota.",
+            "in": "header",
+            "schema": {
+              "$ref": "#/components/schemas/AuthToken"
             }
           }
         ],
@@ -176,8 +255,7 @@
         ],
         "properties": {
           "id": {
-            "type": "string",
-            "format": "Guid"
+            "type": "string"
           },
           "name": {
             "type": "string"
