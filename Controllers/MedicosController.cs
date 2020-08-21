@@ -53,21 +53,18 @@ namespace DesafioBackend.Controllers
         }
 
         /* Buscar todas as especialidades encontradas na busca de palavra chave e retornar todos os médicos que a possuem.
-         * TODO this can be improved by using a singles query with less foreach blocks.
          */
         // GET: /Medico/Especialidade
         [HttpGet("{query}")]
-        public async Task<IEnumerable<MedicoDTO>> GetMedico(String query)
+        public async Task<IEnumerable<MedicoDTO>> GetMedicoByEspecialidade(String query)
         {
             // Busca das especialidades onde conter a query.
             var targetEspecialidade = await _context.Especialidade
                 .Where(especialidade => especialidade.nome.Contains(query))
-                .Include("medicoespecialidade")
-                .ToListAsync();
-
-            // Busca todos os médicos.
-            var medicos = await _context.Medicos
-                .Include("especialidades.especialidade")
+                .Include(especialidade => especialidade.medicoespecialidade)            //Incluir os registros pivot dos medicos.
+                    .ThenInclude(medicoespecialidade => medicoespecialidade.medico)     //Incluir os medicos da especialidade.
+                        .ThenInclude(medico => medico.especialidades)                   //Incluir o pivot dos medicos com as especialidades.
+                            .ThenInclude(especialidade => especialidade.especialidade)  //Incluir as especialidades dos médicos.
                 .ToListAsync();
 
             List<MedicoDTO> responseMedicos = new List<MedicoDTO>();
@@ -93,7 +90,6 @@ namespace DesafioBackend.Controllers
                         cpf = medicoEspecialidade.medico.cpf,
                         crm = medicoEspecialidade.medico.crm,
                         especialidades = especialidades,
-
                     });
                 }
             }
