@@ -4,10 +4,10 @@
 A api será composta por rotas de consulta, criação e deleção de `medicos`, sendo suas rotas autenticadas e sua autenticação feita através de um token jwt que pode ser recuperado através da rota `/getRandomToken`.
 
 ### Versão Atual
-Por padrão todas as requisições para `http://servidor:3000/` recebem a versão mais atual da api.
+Por padrão todas as requisições para `http://servidor:3000/` ou  `https://desafiotdsa-jorge-nascimento.herokuapp.com` recebem a versão mais atual da api.
 
 ### Schema 
-Todo o acesso a api é através do endereço `http://servidor:3000/`. <break>
+Todo o acesso a api é através do endereço `http://servidor:3000/` ou `https://desafiotdsa-jorge-nascimento.herokuapp.com`. <break>
   
 E todos os dados são transmitidos e recebidos como JSON, onde todos os campos vazios são incluidos como nulos ao invés de omitidos.
 
